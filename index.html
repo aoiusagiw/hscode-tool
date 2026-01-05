@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HS Code 申報要素</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: "Roboto", "Helvetica", "Arial", sans-serif; overflow: hidden; }
+        .container { display: flex; height: 100vh; width: 100vw; background-color: #f5f5f5; }
+        .pane { flex: 1; display: flex; flex-direction: column; position: relative; padding: 30px; box-sizing: border-box; }
+        .left-pane { background-color: #ffffff; border-right: 1px solid #dadce0; z-index: 10; }
+        .right-pane { background-color: #f8f9fa; }
+        textarea { width: 100%; height: 100%; border: none; outline: none; resize: none; font-size: 20px; line-height: 1.5; color: #3c4043; font-family: inherit; }
+        #output { font-size: 20px; line-height: 1.6; color: #3c4043; white-space: pre-wrap; height: 100%; overflow-y: auto; }
+        .loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.7); display: none; justify-content: center; align-items: center; font-size: 18px; color: #1a73e8; }
+        .action-bar { position: absolute; bottom: 20px; right: 30px; }
+        .btn-run { background-color: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-run:hover { background-color: #1765cc; }
+        .btn-run:disabled { background-color: #ccc; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="left-pane">
+        <textarea id="inputData" placeholder="在此貼上貨物資料 (Provide)..."></textarea>
+        <div class="action-bar"><button id="btnSubmit" class="btn-run" onclick="analyze()">查詢</button></div>
+    </div>
+    <div class="right-pane">
+        <div id="output"><span style="color:#777;">申報要素將顯示於此...</span></div>
+        <div id="loading" class="loading-overlay">正在分析與歸類...</div>
+    </div>
+</div>
+<script>
+    const inputArea = document.getElementById('inputData');
+    // 自動觸發：貼上後延遲1秒執行
+    inputArea.addEventListener('paste', () => { setTimeout(() => { if(inputArea.value.trim().length > 2) analyze(); }, 800); });
+
+    async function analyze() {
+        const input = inputArea.value;
+        const outputDiv = document.getElementById('output');
+        const btn = document.getElementById('btnSubmit');
+        const loading = document.getElementById('loading');
+        if (!input.trim()) return;
+
+        btn.disabled = true; loading.style.display = "flex";
+        try {
+            // ▼▼▼▼ 請把下面這行網址，換成您剛剛在 Worker 複製的網址 ▼▼▼▼
+            const workerUrl = "https://hscode-api.kabawang.workers.dev"; 
+            
+            const response = await fetch(workerUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productInfo: input })
+            });
+            const data = await response.json();
+            outputDiv.innerText = data.result ? data.result : ("錯誤：" + JSON.stringify(data));
+        } catch (e) { outputDiv.innerText = "連線失敗：" + e; } 
+        finally { btn.disabled = false; loading.style.display = "none"; }
+    }
+</script>
+</body>
+</html>
