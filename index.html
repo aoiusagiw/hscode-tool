@@ -3,243 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HS Code 申報要素助手</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>HS Code 申報要素</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 基礎設定 --- */
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            background-color: #f0f2f5; /* 淺灰背景，更護眼 */
-            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* --- 佈局設定 (Google 翻譯風格) --- */
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Roboto', 'Noto Sans TC', sans-serif; background: #fff; overflow: hidden; }
+        
+        /* 頂部導航列模擬 */
+        .navbar { height: 60px; border-bottom: 1px solid #dadce0; display: flex; align-items: center; padding: 0 24px; }
+        .nav-title { font-size: 22px; color: #5f6368; display: flex; align-items: center; gap: 10px; }
+        
+        /* 主容器：左右兩欄 */
+        .container { display: flex; height: calc(100vh - 60px); width: 100%; }
+        
+        /* 左欄 (輸入) */
+        .pane-left { flex: 1; border-right: 1px solid #dadce0; display: flex; flex-direction: column; position: relative; }
+        /* 右欄 (輸出) */
+        .pane-right { flex: 1; background-color: #f8f9fa; display: flex; flex-direction: column; position: relative; overflow-y: auto; }
 
-        /* --- 主佈局容器 --- */
-        .app-container {
-            display: flex;
-            width: 95%;
-            max-width: 1400px;
-            height: 85vh; /* 視窗高度的 85% */
-            background: #fff;
-            border-radius: 16px; /* 圓角 */
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* 漂亮的陰影 */
-            overflow: hidden;
-            border: 1px solid #e0e0e0;
-        }
-
-        /* --- 左側與右側共同樣式 --- */
-        .pane {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            padding: 0;
-        }
-
-        .pane-header {
-            padding: 15px 25px;
-            border-bottom: 1px solid #eee;
-            font-weight: 700;
-            color: #5f6368;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-            background-color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* --- 左側：輸入區 --- */
-        .left-pane {
-            border-right: 1px solid #e0e0e0;
-            background-color: #fff;
-        }
-
+        /* 輸入框樣式 */
         textarea {
-            flex: 1;
-            width: 100%;
-            border: none;
-            outline: none;
-            resize: none;
-            padding: 25px; /* 增加內邊距，文字不會貼邊 */
-            font-size: 18px;
-            line-height: 1.8;
-            color: #202124;
-            font-family: inherit;
-            box-sizing: border-box; /* 確保 padding 不會撐爆寬度 */
+            flex: 1; width: 100%; border: none; outline: none; resize: none;
+            padding: 40px; font-size: 24px; line-height: 1.6; color: #3c4043;
+            font-family: inherit; box-sizing: border-box;
         }
-        
-        textarea::placeholder {
-            color: #bdc1c6;
-        }
+        textarea::placeholder { color: #9aa0a6; }
 
-        /* --- 右側：輸出區 --- */
-        .right-pane {
-            background-color: #f8f9fa; /* 右邊稍微灰一點，區分層次 */
-        }
+        /* --- 輸出內容表格化 (解決沒對齊的問題) --- */
+        .output-content { padding: 40px; }
 
-        #output {
-            flex: 1;
-            padding: 25px;
-            font-size: 18px;
-            line-height: 1.8;
-            color: #3c4043;
-            white-space: pre-wrap; /* 保留換行 */
-            overflow-y: auto; /* 內容多時可捲動 */
-        }
+        /* 表格樣式 */
+        .result-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .result-table th, .result-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #eee; font-size: 16px; }
+        .result-table th { background-color: #f1f3f4; width: 120px; color: #5f6368; font-weight: 500; white-space: nowrap; }
+        .result-table td { color: #202124; line-height: 1.6; }
+        .result-table tr:last-child td, .result-table tr:last-child th { border-bottom: none; }
 
-        /* --- 按鈕樣式 --- */
+        /* 標題樣式 */
+        .section-title { font-size: 14px; font-weight: 700; color: #1a73e8; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* 複製按鈕 */
         .btn-copy {
-            background-color: white;
-            border: 1px solid #dadce0;
-            color: #1a73e8;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            position: absolute; top: 15px; right: 20px; z-index: 10;
+            background: #fff; border: 1px solid #dadce0; color: #1a73e8;
+            padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; gap: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
+        .btn-copy:hover { background-color: #f1f8ff; border-color: #d2e3fc; }
+        .btn-copy.copied { background-color: #e6f4ea; color: #137333; border-color: transparent; }
 
-        .btn-copy:hover {
-            background-color: #f1f8ff;
-            border-color: #1a73e8;
-        }
-
-        .btn-copy:active {
-            background-color: #e8f0fe;
-            transform: scale(0.98);
-        }
-        
-        /* 複製成功時的綠色狀態 */
-        .btn-copy.copied {
-            background-color: #e6f4ea;
-            color: #137333;
-            border-color: #137333;
-        }
-
-        /* --- 狀態提示 --- */
+        /* 載入動畫 */
         .loading-overlay {
-            position: absolute;
-            top: 50px; /* 避開 header */
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            color: #1a73e8;
-            font-weight: 500;
-            backdrop-filter: blur(2px); /* 模糊效果 */
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8); display: none;
+            justify-content: center; align-items: center; flex-direction: column;
+            backdrop-filter: blur(2px); z-index: 20;
         }
-
-        /* 簡單的載入動畫點點 */
-        .dot-flashing {
-            position: relative;
-            width: 10px; height: 10px;
-            border-radius: 5px;
-            background-color: #1a73e8;
-            color: #1a73e8;
-            animation: dotFlashing 1s infinite linear alternate;
-            animation-delay: .5s;
-        }
-        .dot-flashing::before, .dot-flashing::after {
-            content: ''; display: inline-block; position: absolute; top: 0;
-            width: 10px; height: 10px; border-radius: 5px; background-color: #1a73e8; color: #1a73e8;
-            animation: dotFlashing 1s infinite alternate;
-        }
-        .dot-flashing::before { left: -15px; animation-delay: 0s; }
-        .dot-flashing::after { left: 15px; animation-delay: 1s; }
-
-        @keyframes dotFlashing {
-            0% { background-color: #1a73e8; }
-            50%, 100% { background-color: #e8f0fe; }
-        }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="pane left-pane">
-        <div class="pane-header">提供資料 (INPUT)</div>
-        <textarea id="inputData" placeholder="請在此貼上貨物資料...&#10;系統將自動偵測並開始歸類。"></textarea>
+<div class="navbar">
+    <div class="nav-title">
+        <span style="color:#4285f4; font-weight:bold;">HS</span> Code 申報要素助手
+    </div>
+</div>
+
+<div class="container">
+    <div class="pane-left">
+        <textarea id="inputData" placeholder="請在此貼上貨物資料...&#10;&#10;例如：&#10;品名：六角螺絲&#10;材質：不鏽鋼"></textarea>
     </div>
 
-    <div class="pane right-pane">
-        <div class="pane-header">
-            <span>AI 歸類結果 (OUTPUT)</span>
-            <button id="btnCopy" class="btn-copy" onclick="copyResult()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                複製內容
-            </button>
+    <div class="pane-right">
+        <button id="btnCopy" class="btn-copy" onclick="copyResult()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2-2v1"></path></svg>
+            複製內容
+        </button>
+
+        <div id="outputContent" class="output-content">
+            <div style="color:#777; margin-top:20px;">等待輸入... (貼上文字後自動查詢)</div>
         </div>
-        
-        <div id="output">等待輸入...</div>
-        
+
         <div id="loading" class="loading-overlay">
-            <div class="dot-flashing"></div>
-            <span style="margin-left: 25px;">正在分析海關稅則...</span>
+            <div class="spinner"></div>
+            <div style="margin-top:15px; color:#5f6368; font-weight:500;">AI 正在分析歸類中...</div>
         </div>
     </div>
 </div>
 
 <script>
     const inputArea = document.getElementById('inputData');
-    const outputDiv = document.getElementById('output');
+    const outputDiv = document.getElementById('outputContent');
     const loading = document.getElementById('loading');
     const copyBtn = document.getElementById('btnCopy');
+    
+    // 全域變數儲存原始文字供複製用
+    let rawResultText = "";
 
-    // ★ 核心功能：複製到剪貼簿
-    function copyResult() {
-        const textToCopy = outputDiv.innerText;
-        if (!textToCopy || textToCopy === "等待輸入...") return;
-
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            // 視覺回饋：變色並顯示「已複製」
-            const originalHTML = copyBtn.innerHTML;
-            copyBtn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                已複製！
-            `;
-            copyBtn.classList.add('copied');
-
-            // 2秒後恢復原狀
-            setTimeout(() => {
-                copyBtn.innerHTML = originalHTML;
-                copyBtn.classList.remove('copied');
-            }, 2000);
-        }).catch(err => {
-            alert('複製失敗: ' + err);
-        });
-    }
-
-    // 自動觸發：貼上後延遲執行
+    // 自動執行
     inputArea.addEventListener('paste', () => {
-        setTimeout(() => {
-            if(inputArea.value.trim().length > 2) analyze();
-        }, 500);
+        setTimeout(() => { if(inputArea.value.trim().length > 1) analyze(); }, 500);
     });
 
     async function analyze() {
         const input = inputArea.value;
         if (!input.trim()) return;
 
-        // UI 狀態切換
-        loading.style.display = "flex"; // 顯示載入遮罩
+        loading.style.display = "flex";
         
         try {
-            // ★★★★★ 請再次確認您的 WORKER 網址 ★★★★★
-            const workerUrl = "https://https://hscode-api.kabawang.workers.dev/"; 
+            // ★★★ 請記得換成您的 Worker 網址 ★★★
+            const workerUrl = "https://hscode-api.kabawang.workers.dev/"; 
             
             const response = await fetch(workerUrl, {
                 method: 'POST',
@@ -250,15 +128,76 @@
             const data = await response.json();
 
             if (data.result) {
-                outputDiv.innerText = data.result;
+                rawResultText = data.result;
+                // 呼叫美化函數 (把文字變表格)
+                outputDiv.innerHTML = formatToTable(data.result);
             } else {
-                outputDiv.innerText = "發生錯誤：" + (data.error || "未知錯誤");
+                outputDiv.innerHTML = `<div style="color:red; padding:20px;">發生錯誤：${data.error || "未知錯誤"}</div>`;
             }
         } catch (e) {
-            outputDiv.innerText = "連線失敗，請檢查網路。\n" + e;
+            outputDiv.innerHTML = `<div style="color:red; padding:20px;">
+                <strong>連線失敗 (Failed to fetch)</strong><br><br>
+                請檢查：<br>
+                1. 阿里雲 DashScope 服務是否已點擊【開通服務】？<br>
+                2. Worker 網址是否正確？<br>
+                3. 錯誤訊息：${e}
+            </div>`;
         } finally {
-            loading.style.display = "none"; // 隱藏載入遮罩
+            loading.style.display = "none";
         }
+    }
+
+    // ★ 魔術函數：將 AI 的文字轉換成整齊的表格
+    function formatToTable(text) {
+        // 簡單的 HTML 產生器
+        let html = '';
+        const lines = text.split('\n');
+        let inTable = false;
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            // 判斷是否為標題 (例如 "申報要素：")
+            if (line.endsWith('：') || line.endsWith(':')) {
+                if (inTable) { html += '</table>'; inTable = false; }
+                html += `<div class="section-title">${line}</div>`;
+            } 
+            // 判斷是否為鍵值對 (例如 "品名：螺絲")
+            else if (line.includes('：') || line.includes(':')) {
+                if (!inTable) { html += '<table class="result-table">'; inTable = true; }
+                
+                // 切割 "品名" 和 "螺絲"
+                const separator = line.includes('：') ? '：' : ':';
+                const parts = line.split(separator);
+                const key = parts[0];
+                const val = parts.slice(1).join(separator); // 避免內容裡也有冒號
+
+                html += `<tr><th>${key}</th><td>${val}</td></tr>`;
+            } 
+            // 普通文字
+            else {
+                if (inTable) { html += '</table>'; inTable = false; }
+                html += `<p>${line}</p>`;
+            }
+        });
+
+        if (inTable) html += '</table>';
+        return html;
+    }
+
+    // 複製功能
+    function copyResult() {
+        if (!rawResultText) return;
+        navigator.clipboard.writeText(rawResultText).then(() => {
+            const originalHTML = copyBtn.innerHTML;
+            copyBtn.innerHTML = `✅ 已複製`;
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHTML;
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        });
     }
 </script>
 
