@@ -4,135 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HS Code 申報要素助手</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 全局背景設定 --- */
+        /* --- 全局設定 --- */
         body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            background-color: #f0f2f5; /* 柔和的淺灰背景 */
-            font-family: 'Roboto', 'Noto Sans TC', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center; /* 垂直水平置中 */
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background-color: #f0f2f5; font-family: 'Roboto', 'Noto Sans TC', sans-serif;
+            display: flex; justify-content: center; align-items: center;
         }
 
         /* --- 雙框容器 --- */
         .container {
-            display: flex;
-            width: 90%;
-            max-width: 1400px; /* 限制最大寬度，避免在大螢幕太寬 */
-            height: 80vh;      /* 佔視窗高度 80% */
-            gap: 24px;         /* 兩個框之間的間距 */
+            display: flex; width: 95%; max-width: 1400px; height: 85vh; gap: 24px;
         }
 
-        /* --- 卡片共同樣式 (圓角 + 陰影) --- */
+        /* --- 卡片樣式 --- */
         .card {
-            flex: 1;
-            background: #ffffff;
-            border-radius: 16px; /* 大圓角 */
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* 漂亮的懸浮陰影 */
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* 確保內容不超出圓角 */
-            border: 1px solid #fff; /* 微調邊框 */
-            transition: transform 0.2s, box-shadow 0.2s;
+            flex: 1; background: #ffffff; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex; flex-direction: column; overflow: hidden;
+            border: 1px solid #fff;
         }
 
-        /* 滑鼠移過去稍微浮起的互動感 (可選) */
-        .card:hover {
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-        }
-
-        /* --- 卡片標題區 --- */
+        /* --- 標題列 (關鍵：強制高度對齊) --- */
         .card-header {
-            padding: 20px 30px;
+            /* 設定固定高度，確保左右兩邊的線條絕對對齊 */
+            height: 70px; 
+            padding: 0 25px;
             background: #ffffff;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 16px;
-            font-weight: 500;
-            color: #5f6368;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; /* 確保 padding 不會撐大高度 */
         }
 
-        /* --- 左邊輸入框 (Textarea) --- */
+        .header-title {
+            font-size: 16px; font-weight: 700; color: #5f6368; letter-spacing: 0.5px;
+        }
+
+        /* --- 按鈕群組 --- */
+        .btn-group {
+            display: flex; gap: 10px;
+        }
+
+        /* --- 按鈕樣式 (更現代化) --- */
+        .btn {
+            padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+            cursor: pointer; border: 1px solid #dadce0; background: white; color: #3c4043;
+            transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+        }
+        .btn:hover { background: #f8f9fa; border-color: #bdc1c6; color: #202124; }
+        
+        /* 複製成功的綠色狀態 */
+        .btn.copied { background: #e6f4ea; color: #137333; border-color: transparent; }
+
+        /* 特別強調 HS Code 按鈕 */
+        .btn-primary { color: #1a73e8; border-color: #d2e3fc; background: #f1f8ff; }
+        .btn-primary:hover { background: #e8f0fe; }
+
+        /* --- 輸入與輸出區 --- */
         textarea {
-            flex: 1;
-            width: 100%;
-            border: none;
-            outline: none;
-            resize: none;
-            padding: 30px;
-            font-size: 20px; /* 字體大一點 */
-            line-height: 1.6;
-            color: #202124;
-            font-family: inherit;
-            box-sizing: border-box;
-            background: transparent;
+            flex: 1; width: 100%; border: none; outline: none; resize: none;
+            padding: 30px; font-size: 18px; line-height: 1.6; color: #202124;
+            font-family: inherit; box-sizing: border-box; background: transparent;
         }
-        textarea::placeholder {
-            color: #bdc1c6;
-        }
-
-        /* --- 右邊輸出框 (Div) --- */
         #output {
-            flex: 1;
-            padding: 30px;
-            font-size: 20px; /* 字體大一點 */
-            line-height: 1.6;
-            color: #202124;
-            white-space: pre-wrap; /* 保持純文字換行 */
-            overflow-y: auto;
-            background: #fafafa; /* 右邊稍微灰一點點，區分輸出區 */
+            flex: 1; padding: 30px; font-size: 18px; line-height: 1.6; color: #202124;
+            white-space: pre-wrap; overflow-y: auto; background: #fafafa;
         }
-
-        /* --- 複製按鈕 --- */
-        .btn-copy {
-            background: transparent;
-            border: 1px solid #dadce0;
-            color: #1a73e8;
-            padding: 6px 16px;
-            border-radius: 20px; /* 膠囊狀按鈕 */
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-copy:hover {
-            background: #e8f0fe;
-            border-color: #d2e3fc;
-        }
-        .btn-copy.copied {
-            background: #e6f4ea;
-            color: #137333;
-            border-color: transparent;
-        }
+        textarea::placeholder { color: #bdc1c6; }
 
         /* --- 載入動畫 --- */
         .loading-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 10;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.9); display: none;
+            justify-content: center; align-items: center; flex-direction: column; z-index: 10;
         }
         .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #1a73e8;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            width: 40px; height: 40px; border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a73e8; border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -140,13 +91,23 @@
 <div class="container">
     
     <div class="card">
-        <div class="card-header">提供資料 (INPUT)</div>
+        <div class="card-header">
+            <span class="header-title">提供資料 (INPUT)</span>
+        </div>
         <textarea id="inputData" placeholder="請在此貼上貨物資料...&#10;&#10;例如：&#10;品名：碳鋼木螺釘&#10;材質：碳鋼&#10;用途：家具組裝"></textarea>
     </div>
 
-    <div class="card" style="position:relative;"> <div class="card-header">
-            <span>AI 歸類結果 (OUTPUT)</span>
-            <button id="btnCopy" class="btn-copy" onclick="copyResult()">複製內容</button>
+    <div class="card" style="position:relative;">
+        <div class="card-header">
+            <span class="header-title">AI 歸類結果 (OUTPUT)</span>
+            <div class="btn-group">
+                <button id="btnCopyCode" class="btn btn-primary" onclick="copyHSCode()">
+                    複製 HS Code
+                </button>
+                <button id="btnCopyElements" class="btn" onclick="copyElements()">
+                    複製申報要素
+                </button>
+            </div>
         </div>
         
         <div id="output">
@@ -165,13 +126,12 @@
     const inputArea = document.getElementById('inputData');
     const outputDiv = document.getElementById('output');
     const loading = document.getElementById('loading');
-    const copyBtn = document.getElementById('btnCopy');
 
-    // 自動執行邏輯：貼上後延遲 0.5 秒執行
+    // 保存原始回傳資料，供正則表達式提取使用
+    let rawData = "";
+
     inputArea.addEventListener('paste', () => {
-        setTimeout(() => {
-            if(inputArea.value.trim().length > 1) analyze();
-        }, 500);
+        setTimeout(() => { if(inputArea.value.trim().length > 1) analyze(); }, 500);
     });
 
     async function analyze() {
@@ -181,7 +141,7 @@
         loading.style.display = "flex";
 
         try {
-            // ★★★ 您的 Worker 網址 (從您的圖1抄下來的) ★★★
+            // ★★★ 請確認 Worker 網址正確 ★★★
             const workerUrl = "https://hscode-api.kabawang.workers.dev"; 
             
             const response = await fetch(workerUrl, {
@@ -193,30 +153,74 @@
             const data = await response.json();
 
             if (data.result) {
-                // 直接顯示純文字
-                outputDiv.innerText = data.result;
+                rawData = data.result; // 存起來給複製按鈕用
+                
+                // 1. 【移除 "回覆："】 邏輯
+                // 使用正則表達式把開頭的 "回覆：" 或 "回覆:" 去掉
+                let cleanText = data.result.replace(/^回覆[：:]\s*/g, '');
+                
+                outputDiv.innerText = cleanText;
             } else {
                 outputDiv.innerHTML = `<span style="color:red;">發生錯誤：${data.error || "未知錯誤"}</span>`;
             }
         } catch (e) {
-            outputDiv.innerHTML = `<span style="color:red; font-weight:bold;">連線失敗！</span><br><br>請依照以下步驟檢查：<br>1. 回到阿里雲後台，點擊黃色框框的【開通服務】(這是最常見原因)。<br>2. 檢查網路狀態。<br><br>錯誤代碼：${e}`;
+            outputDiv.innerHTML = `<span style="color:red;">連線失敗！請檢查 Worker 狀態。</span>`;
         } finally {
             loading.style.display = "none";
         }
     }
 
-    function copyResult() {
-        const text = outputDiv.innerText;
-        if (!text || text.includes("等待輸入")) return;
+    // --- 功能 2 & 3: 智慧複製邏輯 ---
+
+    // 複製 HS Code (只抓數字)
+    function copyHSCode() {
+        if (!rawData) return;
         
+        // 正則：尋找 "HS Code" 後面的數字
+        // 支援格式： "建議HS Code : 7318150000" 或 "HS Code: 7318.15.00"
+        const match = rawData.match(/(?:HS\s*Code|稅號)[：:]?\s*([0-9.]+)/i);
+        
+        if (match && match[1]) {
+            // 移除可能存在的點 (.) 變成純數字，視您的需求而定，這裡先保留原樣
+            const code = match[1].trim(); 
+            copyToClipboard(code, 'btnCopyCode', '已複製 Code');
+        } else {
+            alert("找不到 HS Code，請確認 AI 回覆內容");
+        }
+    }
+
+    // 複製申報要素 (只抓 1. xxx 2. xxx 那一塊)
+    function copyElements() {
+        if (!rawData) return;
+
+        // 正則：抓取 "申報要素：" 開始，直到 "監管提示：" 或結尾
+        // 使用 [\s\S]*? 來匹配跨行內容
+        const match = rawData.match(/申報要素[：:]([\s\S]*?)(?:監管提示|$)/);
+
+        if (match && match[1]) {
+            const elements = match[1].trim();
+            copyToClipboard(elements, 'btnCopyElements', '已複製要素');
+        } else {
+            // 如果正則抓不到，嘗試複製全部，或者給個提示
+            alert("找不到標準格式的申報要素區塊");
+        }
+    }
+
+    // 通用複製函數 (含按鈕動畫)
+    function copyToClipboard(text, btnId, successText) {
         navigator.clipboard.writeText(text).then(() => {
-            const originalText = copyBtn.innerText;
-            copyBtn.innerText = "已複製！";
-            copyBtn.classList.add('copied');
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerText;
+            
+            btn.innerText = successText;
+            btn.classList.add('copied');
+            
             setTimeout(() => {
-                copyBtn.innerText = originalText;
-                copyBtn.classList.remove('copied');
+                btn.innerText = originalText;
+                btn.classList.remove('copied');
             }, 2000);
+        }).catch(err => {
+            console.error('複製失敗:', err);
         });
     }
 </script>
